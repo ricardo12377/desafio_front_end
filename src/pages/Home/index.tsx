@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import * as S from './styles'
 import { AiOutlineSearch } from 'react-icons/ai'
 
@@ -10,28 +10,22 @@ import { DetailedStoreTypes } from '../../types/detailedStore'
 
 //ENDPOINTS
 import { EDIT_STATUS } from '../../endpoints/editStatus'
-import { REQUEST_BY_NAME } from '../../endpoints/requesByName'
 import { GET_STORES } from '../../endpoints/getStores'
 
 //HTTP-OPTIONS
 import { FetchAllDataOptions } from '../../api-options/fetchAllData'
 import { EditStatusOptions } from '../../api-options/editStatus'
 import { GetByNameOptions } from '../../api-options/getByName'
-import { LoginContext } from '../../context/loginContext'
+import ItemList from '../../components/ItemList'
 
 const Home = () => {
   //LISTA  GERAL
   const [stores, setStores] = useState<ItemListType[]>([])
   //STORE QUE IRÁ SER PEGO NO INPUT DE PESQUISA
-  const [detailedStore, setDetailedStore] = useState<DetailedStoreTypes>({
-    id: 0,
-    name: '',
-    active: false,
-    address: '',
-  })
+  const [detailedStore, setDetailedStore] = useState<ItemListType[]>([])
 
   //PARAMETRO PARA FAZER REQUISICAO PELO INPUT DE NOME DESEJADO
-  const [param, setParam] = useState<number>(0)
+  const [param, setParam] = useState<string>('')
 
   //OBJETO QUE IRÁ FAZER  A REQUISICAO PUT PARA ATIVAR OU DESATIVAR ITEMS
   let selectedItems: EditStatusType = {
@@ -74,9 +68,11 @@ const Home = () => {
     console.log(selectedItems.ids)
   }
 
-  function HandleEditStatus() {
+  function HandleEditStatus(status: boolean) {
     //PEGANDO TOKEN
     const token = localStorage.getItem('token')?.toString()
+
+    selectedItems.active = status
 
     if (token != null) {
       const myOptions = EditStatusOptions(EDIT_STATUS, token, selectedItems)
@@ -90,27 +86,18 @@ const Home = () => {
     }
   }
 
-  //HOOK PARA PEGAR O ID DO NOME DIGITADO NO INPUT => O PARAM IRA SER USADO NA FUNCAO REQUESTBYNAME LOGO ABAIXO
-  function GetId(e: string) {
-    stores.map((item) => {
-      if (item.name.includes(e)) {
-        setParam(item.id)
-      }
-    })
-  }
-
   //FAZENDO REQUISICAO PELO  NOME NO INPUT
-  function RequestByName(param: number) {
+  function RequestByName(value: string) {
     const token = localStorage.getItem('token')?.toString()
 
     if (token != null) {
-      const myOptions = GetByNameOptions(REQUEST_BY_NAME, token, param)
+      const options = GetByNameOptions(GET_STORES, value, token)
 
       //REQUISICAO
       axios
-        .request(myOptions)
-        .then(function (response) {
-          setDetailedStore(response.data)
+        .request(options)
+        .then((response) => {
+          setDetailedStore(response.data.data)
         })
         .catch((err) => console.log(err))
     }
@@ -130,52 +117,44 @@ const Home = () => {
             </div>
             <input
               placeholder="Procure pelo nome"
-              onChange={(e) => GetId(e.target.value)}
+              onChange={(e) => setParam(e.target.value)}
             />
           </S.SearchContainer>
 
           <S.Buttons>
-            <S.Action color={'green'} onClick={() => HandleEditStatus()}>
+            <S.Action color="green" onClick={() => HandleEditStatus(true)}>
               Ativar
             </S.Action>
-            <S.Action color="red" onClick={() => HandleEditStatus()}>
+            <S.Action color="red" onClick={() => HandleEditStatus(false)}>
               Desativar
             </S.Action>
           </S.Buttons>
         </S.Header>
 
         <S.List>
-          {detailedStore.name !== '' ? (
-            <S.ItemList>
-              <div>
-                <em>Nome: {detailedStore.name}</em>
-                <em>
-                  Status: {detailedStore.active == 1 ? 'Active' : 'Inactive'}
-                </em>
-              </div>
-              <input
-                type="checkbox"
-                value={detailedStore.id}
-                onClick={() => GetCheckedItems(detailedStore.id)}
-              />
-            </S.ItemList>
-          ) : (
-            stores.map((item) => {
-              return (
-                <S.ItemList>
-                  <div>
-                    <em>Nome: {item.name}</em>
-                    <em>Status: {item.active == 1 ? 'Active' : 'Inactive'}</em>
-                  </div>
-                  <input
-                    type="checkbox"
-                    value={item.id}
-                    onClick={() => GetCheckedItems(item.id)}
+          {detailedStore.length > 0
+            ? detailedStore.map((item, index) => {
+                return (
+                  <ItemList
+                    id={item.id}
+                    name={item.name}
+                    index={index}
+                    active={item.active}
+                    func={() => GetCheckedItems(item.id)}
                   />
-                </S.ItemList>
-              )
-            })
-          )}
+                )
+              })
+            : stores.map((item, index) => {
+                return (
+                  <ItemList
+                    id={item.id}
+                    name={item.name}
+                    index={index}
+                    active={item.active}
+                    func={() => GetCheckedItems(item.id)}
+                  />
+                )
+              })}
         </S.List>
       </S.Table>
     </S.Home>

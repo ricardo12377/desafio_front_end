@@ -1,2 +1,2 @@
 export const API_LOGIN =
-  'https://stoplight.io/mocks/mundo-wap-teste/react-developer-test---mundo-wap/39708592/users/login'
+  'https://apimw.sistemagiv.com.br/test_front/users/login'
