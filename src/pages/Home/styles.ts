@@ -17,6 +17,7 @@ export const Table = styled.section`
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
+  position: relative;
 `
 
 export const Header = styled.div`

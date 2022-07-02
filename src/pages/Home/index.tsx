@@ -11,18 +11,31 @@ import { DetailedStoreTypes } from '../../types/detailedStore'
 //ENDPOINTS
 import { EDIT_STATUS } from '../../endpoints/editStatus'
 import { GET_STORES } from '../../endpoints/getStores'
+import { GET_DETAILED_STORE } from '../../endpoints/detailedStore'
 
 //HTTP-OPTIONS
 import { FetchAllDataOptions } from '../../api-options/fetchAllData'
 import { EditStatusOptions } from '../../api-options/editStatus'
 import { GetByNameOptions } from '../../api-options/getByName'
+import { GetOneItemOptions } from '../../api-options/getOneItem'
+
+//COMPONENTS
+import Modal from '../../components/modal'
 import ItemList from '../../components/ItemList'
 
 const Home = () => {
   //LISTA  GERAL
   const [stores, setStores] = useState<ItemListType[]>([])
   //STORE QUE IRÁ SER PEGO NO INPUT DE PESQUISA
-  const [detailedStore, setDetailedStore] = useState<ItemListType[]>([])
+  const [filtredStore, setFiltredStore] = useState<ItemListType[]>([])
+
+  const [modal, setModal] = useState<boolean>(false)
+  const [modalItem, setModalItem] = useState<DetailedStoreTypes>({
+    name: '',
+    id: 0,
+    address: '',
+    active: 0,
+  })
 
   //PARAMETRO PARA FAZER REQUISICAO PELO INPUT DE NOME DESEJADO
   const [param, setParam] = useState<string>('')
@@ -46,7 +59,6 @@ const Home = () => {
         .request(myOptions)
         .then(function (response) {
           setStores(response.data.data)
-          console.log(stores)
         })
         .catch((err) => console.log(err))
     }
@@ -58,14 +70,12 @@ const Home = () => {
     if (selectedItems.ids.includes(item)) {
       //PEGANDO O INDEX PARA REMOVER DO ARRAY CASO CLICADO DNV EM UM CHECKBOX MARCADO
       let index = selectedItems.ids.findIndex((el) => el == item)
-      //REMOVENDO
       selectedItems.ids.splice(index, 1)
-      console.log(selectedItems.ids)
+
       return true
     }
-    //SE O ITEM AINDA NAO TIVER NO ARRAY DE IDS, SERA ACRESCENTADO COM O METODO PUSH
+
     selectedItems.ids.push(item)
-    console.log(selectedItems.ids)
   }
 
   function HandleEditStatus(status: boolean) {
@@ -81,6 +91,7 @@ const Home = () => {
         .request(myOptions)
         .then(function (response) {
           console.log(response)
+          window.location.reload()
         })
         .catch((err) => console.log(err))
     }
@@ -97,15 +108,29 @@ const Home = () => {
       axios
         .request(options)
         .then((response) => {
-          setDetailedStore(response.data.data)
+          setFiltredStore(response.data.data)
         })
         .catch((err) => console.log(err))
     }
   }
 
+  function HandleModalItem(id: number) {
+    const token = localStorage.getItem('token')?.toString()
+
+    if (token != null) {
+      const options = GetOneItemOptions(GET_DETAILED_STORE, token, id)
+
+      axios
+        .request(options)
+        .then((response) => setModalItem(response.data.data))
+        .then(() => setModal(true))
+        .catch((err) => console.log(err))
+    }
+  }
+
   useEffect(() => {
-    FetchData()
-  }, [])
+    if (stores.length < 1) FetchData()
+  }, [stores])
 
   return (
     <S.Home>
@@ -132,8 +157,8 @@ const Home = () => {
         </S.Header>
 
         <S.List>
-          {detailedStore.length > 0
-            ? detailedStore.map((item, index) => {
+          {filtredStore.length > 0
+            ? filtredStore.map((item, index) => {
                 return (
                   <ItemList
                     id={item.id}
@@ -141,6 +166,7 @@ const Home = () => {
                     index={index}
                     active={item.active}
                     func={() => GetCheckedItems(item.id)}
+                    modalFunc={() => HandleModalItem(item.id)}
                   />
                 )
               })
@@ -152,10 +178,21 @@ const Home = () => {
                     index={index}
                     active={item.active}
                     func={() => GetCheckedItems(item.id)}
+                    modalFunc={() => HandleModalItem(item.id)}
                   />
                 )
               })}
         </S.List>
+        {modal ? (
+          <Modal
+            name={modalItem?.name}
+            active={modalItem.active}
+            address={modalItem.address}
+            id={modalItem.id}
+            buttonName="Fechar"
+            closeModal={() => setModal(false)}
+          />
+        ) : null}
       </S.Table>
     </S.Home>
   )

@@ -3,6 +3,7 @@ import * as S from './styles'
 import * as yup from 'yup'
 import { LoginContext } from '../../context/loginContext'
 import { Validation } from '../../types/loginTypes'
+import LoginButton from '../../components/loginButton'
 
 const Login = () => {
   const { ValidateUser } = useContext(LoginContext)
@@ -61,10 +62,7 @@ const Login = () => {
         </S.FieldLabel>
 
         <br />
-        <S.Button type="submit" onClick={Execute}>
-          Login
-        </S.Button>
-        <S.Button>teste</S.Button>
+        <LoginButton name="Login" func={Execute} />
       </S.Form>
     </S.LoginPage>
   )

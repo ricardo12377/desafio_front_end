@@ -16,3 +16,11 @@ export const Infos = styled.div`
   align-items: center;
   justify-content: space-around;
 `
+
+export const Button = styled.button`
+  width: 100px;
+  height: 30px;
+  border: 2px solid white;
+  background-color: #323345;
+  color: white;
+`

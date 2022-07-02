@@ -35,13 +35,3 @@ export const InputValue = styled.input`
   height: 40px;
   font-size: 20px;
 `
-
-export const Button = styled.button`
-  background-color: #020923;
-  color: white;
-  width: 40%;
-  height: 35px;
-  font-size: 20px;
-  border: 2px solid white;
-  border-radius: 15px;
-`
