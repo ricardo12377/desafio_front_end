@@ -6,6 +6,7 @@ import { Validation } from '../../types/loginTypes'
 import LoginButton from '../../components/loginButton'
 
 const Login = () => {
+  //PEGANDO A FUNCAO DA CONTEXTAPI PARA GERENCIAR USUARIO
   const { ValidateUser } = useContext(LoginContext)
 
   const [login, setLogin] = useState<Validation>({

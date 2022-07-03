@@ -23,7 +23,6 @@ export const LoginContext = createContext<ContextType>({} as ContextType)
 
 export const LoginProvider = ({ children }: UserContextProps) => {
   const [user, setUser] = useState({} as LoggedUserTypes)
-  const [greenButton, setGreenButton] = useState('')
 
   const navigate = useNavigate()
 

@@ -14,7 +14,7 @@ export function EditStatusOptions(
       Accept: 'application/json',
       Authorization: 'Bearer' + token,
     },
-    data: body,
+    data: { ids: body.ids, active: body.active },
   }
   return options
 }

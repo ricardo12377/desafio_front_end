@@ -1,7 +1,8 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import * as S from './styles'
 import { AiOutlineSearch } from 'react-icons/ai'
+import ReactLoading from 'react-loading'
 
 //TYPES
 import { ItemListType } from '../../types/itemListTypes'
@@ -24,87 +25,72 @@ import Modal from '../../components/modal'
 import ItemList from '../../components/ItemList'
 
 const Home = () => {
-  //LISTA  GERAL
+  const [actions, setActions] = useState(false)
   const [stores, setStores] = useState<ItemListType[]>([])
-  //STORE QUE IRÁ SER PEGO NO INPUT DE PESQUISA
   const [filtredStore, setFiltredStore] = useState<ItemListType[]>([])
-
+  const [loading, setLoading] = useState(false)
   const [modal, setModal] = useState<boolean>(false)
+  const [param, setParam] = useState<string>('')
   const [modalItem, setModalItem] = useState<DetailedStoreTypes>({
     name: '',
     id: 0,
     address: '',
     active: 0,
   })
-
-  //PARAMETRO PARA FAZER REQUISICAO PELO INPUT DE NOME DESEJADO
-  const [param, setParam] = useState<string>('')
-
-  //OBJETO QUE IRÁ FAZER  A REQUISICAO PUT PARA ATIVAR OU DESATIVAR ITEMS
-  let selectedItems: EditStatusType = {
+  const [selectedItems, setSelectedItems] = useState<EditStatusType>({
     ids: [],
     active: false,
-  }
+  })
 
   //PEGANDO OS DADOS ---> GET <---- PARA PREENCHER A LISTA
   function FetchData() {
-    //PEGANDO O TOKEN DE AUTORIZACAO
     const token = localStorage.getItem('token')?.toString()
-
-    //VALIDANDO PARA NAO TER PERIGO DE TENTAR FAZER REQUISICAO SEM TOKEN
     if (token != null) {
       const myOptions = FetchAllDataOptions(GET_STORES, token)
-      //REQUISICAO
+
       axios
         .request(myOptions)
-        .then(function (response) {
-          setStores(response.data.data)
-        })
+        .then((response) => setStores(response.data.data))
         .catch((err) => console.log(err))
     }
   }
 
-  //ESSA FUNCAO IRA ADMINISTRAR OS NUMEROS DO ARRAY PARA FAZER O PUT
+  //ADICIONA OU REMOVE ITEMS DA LISTA DE IDS PARA REQUISICAO PUT
   function GetCheckedItems(item: number) {
-    //CONDICAO PARA NAO TER ID'S REPETIDOS NO ARRAY DO BODY
     if (selectedItems.ids.includes(item)) {
-      //PEGANDO O INDEX PARA REMOVER DO ARRAY CASO CLICADO DNV EM UM CHECKBOX MARCADO
       let index = selectedItems.ids.findIndex((el) => el == item)
       selectedItems.ids.splice(index, 1)
-
       return true
     }
 
     selectedItems.ids.push(item)
+    if (selectedItems.ids.length > 0) setActions(true)
   }
 
+  //FUNCAO PARA EDITAR OS STATUS DOS ITEMS SELECIONADOS PELO CHECKBOX
   function HandleEditStatus(status: boolean) {
-    //PEGANDO TOKEN
+    setLoading(true)
     const token = localStorage.getItem('token')?.toString()
-
     selectedItems.active = status
 
     if (token != null) {
       const myOptions = EditStatusOptions(EDIT_STATUS, token, selectedItems)
-      //REQUISICAO
+
       axios
         .request(myOptions)
-        .then(function (response) {
-          console.log(response)
-          window.location.reload()
-        })
+        .then((response) => console.log(response))
+        .then(() => setLoading(false))
+        .then(() => document.location.reload())
         .catch((err) => console.log(err))
     }
   }
 
-  //FAZENDO REQUISICAO PELO  NOME NO INPUT
+  //FUNCAO PARA FAZER O RESQUEST NA API PELO NOME DO INPUT
   function RequestByName(value: string) {
     const token = localStorage.getItem('token')?.toString()
-
     if (token != null) {
       const options = GetByNameOptions(GET_STORES, value, token)
 
-      //REQUISICAO
       axios
         .request(options)
         .then((response) => {
@@ -114,9 +100,10 @@ const Home = () => {
     }
   }
 
+  //ATIVA O MODAL E PEGA AS INFORMACOES DO ITEM QUE IRÁ PARA O MODAL
   function HandleModalItem(id: number) {
+    setLoading(true)
     const token = localStorage.getItem('token')?.toString()
-
     if (token != null) {
       const options = GetOneItemOptions(GET_DETAILED_STORE, token, id)
 
@@ -124,15 +111,22 @@ const Home = () => {
         .request(options)
         .then((response) => setModalItem(response.data.data))
         .then(() => setModal(true))
+        .then(() => setLoading(false))
         .catch((err) => console.log(err))
     }
   }
 
   useEffect(() => {
-    if (stores.length < 1) FetchData()
-  }, [stores])
+    setTimeout(() => {
+      FetchData()
+    }, 200)
+  }, [])
 
-  return (
+  return loading === true ? (
+    <S.LoadingPage>
+      <ReactLoading type="spin" color="black" height={667} width={375} />
+    </S.LoadingPage>
+  ) : (
     <S.Home>
       <S.Table>
         <S.Header>
@@ -146,14 +140,16 @@ const Home = () => {
             />
           </S.SearchContainer>
 
-          <S.Buttons>
-            <S.Action color="green" onClick={() => HandleEditStatus(true)}>
-              Ativar
-            </S.Action>
-            <S.Action color="red" onClick={() => HandleEditStatus(false)}>
-              Desativar
-            </S.Action>
-          </S.Buttons>
+          {actions ? (
+            <S.Buttons>
+              <S.Action color="green" onClick={() => HandleEditStatus(true)}>
+                Ativar
+              </S.Action>
+              <S.Action color="red" onClick={() => HandleEditStatus(false)}>
+                Desativar
+              </S.Action>
+            </S.Buttons>
+          ) : null}
         </S.Header>
 
         <S.List>

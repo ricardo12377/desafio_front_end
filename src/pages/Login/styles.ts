@@ -35,3 +35,10 @@ export const InputValue = styled.input`
   height: 40px;
   font-size: 20px;
 `
+export const LoadingPage = styled.div`
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`

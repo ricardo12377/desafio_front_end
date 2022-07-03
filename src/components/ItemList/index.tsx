@@ -5,7 +5,7 @@ type ItemTypes = {
   name: string
   active: boolean | number
   id: number
-  func: any
+  func?: any
   modalFunc?: any
 }
 
@@ -13,7 +13,6 @@ export default function ItemList({
   index,
   name,
   active,
-  id,
   func,
   modalFunc,
 }: ItemTypes) {
@@ -23,7 +22,7 @@ export default function ItemList({
         <em>Nome: {name}</em>
         <em>Status: {active == 1 ? 'Active' : 'Inactive'}</em>
       </S.Infos>
-      <input type="checkbox" value={id} onClick={func} />
+      <input type="checkbox" onClick={func} />
       <S.Button onClick={modalFunc}>Modal</S.Button>
     </S.ItemList>
   )

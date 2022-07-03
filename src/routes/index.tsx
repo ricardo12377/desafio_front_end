@@ -1,5 +1,4 @@
 import { Navigate, Route, Routes as RoutesSwitch } from 'react-router-dom'
-import PrivateRoute from './PrivateRoute'
 import Login from '../pages/Login'
 import Home from '../pages/Home'
 

@@ -73,3 +73,10 @@ export const List = styled.div`
   flex-direction: column;
   align-items: center;
 `
+export const LoadingPage = styled.div`
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
