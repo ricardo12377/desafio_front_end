@@ -45,6 +45,9 @@ export const SearchContainer = styled.div`
     background-color: #323345;
     font-size: 18px;
   }
+  
+  div {
+  cursor: pointer;
 `
 
 export const Buttons = styled.div`
@@ -63,6 +66,7 @@ export const Action = styled.button`
   color: black;
   font-size: 15px;
   border: 2px solid white;
+  cursor: pointer;
 `
 export const List = styled.div`
   height: 80%;
