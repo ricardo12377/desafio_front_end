@@ -38,8 +38,8 @@ export const LoginProvider = ({ children }: UserContextProps) => {
     }
   }, [])
 
+  //FUNCAO PARA VALIDAR USUARIO NO LOCALSTORAGE
   const ValidateUser = ({ login, password }: Validation) => {
-    //CRIANDO O USUARIO QUE IRÁ SER LOGADO
     const loggedUser: LoggedUserTypes = {
       id: '1',
       login,
@@ -57,11 +57,9 @@ export const LoginProvider = ({ children }: UserContextProps) => {
       data: { username: loggedUser.login, password: loggedUser.password },
     }
 
-    //FAZENDO A REQUISIÇAO PARA RECEBER O TOKEN E ATRIBUIR AO USUARIO QUE SERA LOGADO
     axios
       .request(options)
       .then(function (response) {
-        //PEGANDO O TOKEN E ADICIONANDO  NO LOCAL STORAGE JUNTO COM O USUARIO ATUAL
         localStorage.setItem('token', JSON.stringify(response.data.data.token))
         localStorage.setItem('user', JSON.stringify(loggedUser))
       })
@@ -69,7 +67,6 @@ export const LoginProvider = ({ children }: UserContextProps) => {
         console.error(error)
       })
 
-    //localStorage.setItem('user', JSON.stringify(loggedUser))
     if (loggedUser) {
       //APENAS  SETANDO UM USER GLOBAL CASO QUEIRA FAZER INTERAÇÔES COM ELE EM OUTRAS PAGINAS
       setUser(loggedUser)
