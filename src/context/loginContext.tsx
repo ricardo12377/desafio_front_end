@@ -7,6 +7,7 @@ import { API_LOGIN } from '../endpoints/login'
 import { Validation } from '../types/loginTypes'
 //TIPAGEM PARA O  USUARIO COM TOKEN E ID
 import { LoggedUserTypes } from '../types/loggedUserTypes'
+import { LoginRequestOptions } from '../api-options/loginRequest'
 
 //TIPAGEM DA PROPS DO PROVIDER - > USADO NA LINHA 24
 type UserContextProps = {
@@ -46,16 +47,11 @@ export const LoginProvider = ({ children }: UserContextProps) => {
       password,
     }
 
-    //CONFIGURAÇOES DA REQUISIÇAO PARA OBTER O TOKEN
-    const options: AxiosRequestConfig = {
-      method: 'POST',
-      url: API_LOGIN,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      data: { username: loggedUser.login, password: loggedUser.password },
-    }
+    const options = LoginRequestOptions(
+      loggedUser.login,
+      loggedUser.password,
+      API_LOGIN
+    )
 
     axios
       .request(options)
